@@ -4,19 +4,26 @@ import (
 	"context"
 	"embed"
 	"errors"
+	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"time"
 
+	"github.com/blak0p/attack-shark-linux/internal/battery"
 	"github.com/blak0p/attack-shark-linux/internal/configstore"
 	"github.com/blak0p/attack-shark-linux/internal/desktop"
 	"github.com/blak0p/attack-shark-linux/internal/hidlinux"
 	"github.com/blak0p/attack-shark-linux/internal/mouse"
 	"github.com/blak0p/attack-shark-linux/internal/transport"
+	"github.com/blak0p/attack-shark-linux/internal/udevpolicy"
 	"github.com/blak0p/attack-shark-linux/internal/update"
 	"github.com/blak0p/attack-shark-linux/internal/x6"
+	"github.com/godbus/dbus/v5"
 	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
 //go:embed frontend/dist
@@ -34,9 +41,77 @@ var releaseBuildContract = struct {
 
 // wailsEventSink bridges the desktop service to the Wails event manager so the
 // frontend can subscribe to live status updates.
-type wailsEventSink struct{ app *application.App }
+type wailsEventSink struct {
+	app     *application.App
+	battery *batteryTray
+}
 
-func (s wailsEventSink) Emit(name string, payload any) { s.app.Event.Emit(name, payload) }
+func (s wailsEventSink) Emit(name string, payload any) {
+	s.app.Event.Emit(name, payload)
+	if name != "mouse:status" || s.battery == nil {
+		return
+	}
+	event, ok := payload.(desktop.StatusEvent)
+	if ok && event.Battery != nil {
+		s.battery.update(*event.Battery)
+	}
+}
+
+type batteryTray struct {
+	tray       *application.SystemTray
+	levelItem  *application.MenuItem
+	notifyGate battery.LowBatteryGate
+}
+
+func (b *batteryTray) update(level int) {
+	if level < 0 {
+		level = 0
+	}
+	if level > 100 {
+		level = 100
+	}
+	label := fmt.Sprintf("%d%%", level)
+	b.tray.SetLabel(label)
+	b.tray.SetTooltip("Attack Shark X6 — battery " + label)
+	b.levelItem.SetLabel("Mouse battery: " + label)
+	if b.notifyGate.ShouldNotify(level) {
+		go func() {
+			if err := notifyLowBattery(level); err != nil {
+				slog.Warn("could not show low-battery notification", "error", err)
+			}
+		}()
+	}
+}
+
+func notifyLowBattery(level int) error {
+	connection, err := dbus.SessionBusPrivate()
+	if err != nil {
+		return fmt.Errorf("connect to desktop notification bus: %w", err)
+	}
+	defer connection.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
+	defer cancel()
+	hints := map[string]dbus.Variant{"urgency": dbus.MakeVariant(byte(2))}
+	body := fmt.Sprintf("O Attack Shark X6 está com %d%% de bateria. Conecte-o para carregar.", level)
+	call := connection.Object("org.freedesktop.Notifications", "/org/freedesktop/Notifications").CallWithContext(
+		ctx,
+		"org.freedesktop.Notifications.Notify",
+		0,
+		"Attack Shark X6 Configurator",
+		uint32(0),
+		"attack-shark-x6",
+		"Bateria do mouse fraca",
+		body,
+		[]string{},
+		hints,
+		int32(5000),
+	)
+	if call.Err != nil {
+		return fmt.Errorf("send desktop notification: %w", call.Err)
+	}
+	return nil
+}
 
 type x6InventoryBackend interface {
 	Enumerate(context.Context, transport.Match) ([]transport.Candidate, error)
@@ -140,10 +215,17 @@ func startWails() error {
 		if err := desktop.ConfigureAuthenticatedPolicyUpdates(service); err != nil {
 			return err
 		}
+	} else {
+		desktop.ConfigureLocalInstallationUpdates(service, udevpolicy.InstalledSource())
+	}
+	icon, err := assets.ReadFile("frontend/dist/attack-shark-x6.png")
+	if err != nil {
+		return fmt.Errorf("read Attack Shark application icon: %w", err)
 	}
 	listenCtx, stopListening := context.WithCancel(context.Background())
 	app = application.New(application.Options{
 		Name: "Attack Shark X6 Configurator",
+		Icon: icon,
 		OnShutdown: func() {
 			stopListening()
 		},
@@ -155,14 +237,29 @@ func startWails() error {
 		},
 	})
 
-	service.AttachListener(passive, wailsEventSink{app: app})
-	service.StartListener(listenCtx)
-
 	window := app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:  "Attack Shark X6 Configurator",
 		Width:  1024,
 		Height: 768,
+		Linux:  application.LinuxWindow{Icon: icon},
 	})
+	window.RegisterHook(events.Common.WindowClosing, func(event *application.WindowEvent) {
+		window.Hide()
+		event.Cancel()
+	})
+
+	trayMenu := app.NewMenu()
+	levelItem := trayMenu.Add("Mouse battery: waiting for report").SetEnabled(false)
+	trayMenu.AddSeparator()
+	var tray *application.SystemTray
+	trayMenu.Add("Open Attack Shark X6").OnClick(func(*application.Context) { tray.ShowWindow() })
+	trayMenu.Add("Quit").OnClick(func(*application.Context) { app.Quit() })
+	tray = app.SystemTray.New().SetIcon(icon).SetMenu(trayMenu).AttachWindow(window)
+	tray.SetLabel("—")
+	tray.SetTooltip("Attack Shark X6 — battery unavailable")
+
+	service.AttachListener(passive, wailsEventSink{app: app, battery: &batteryTray{tray: tray, levelItem: levelItem}})
+	service.StartListener(listenCtx)
 	window.SetURL("/")
 	window.Center()
 

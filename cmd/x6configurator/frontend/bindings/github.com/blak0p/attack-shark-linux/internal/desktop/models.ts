@@ -727,6 +727,7 @@ export type StatusListener = any;
  * UnifiedUpdateInfo contains display values only, not privileged inputs.
  */
 export class UnifiedUpdateInfo {
+    "LocalInstallation": boolean;
     "Version": string;
     "AppAvailable": boolean;
     "AppInstalled": boolean;
@@ -738,6 +739,9 @@ export class UnifiedUpdateInfo {
 
     /** Creates a new UnifiedUpdateInfo instance. */
     constructor($$source: Partial<UnifiedUpdateInfo> = {}) {
+        if (!("LocalInstallation" in $$source)) {
+            this["LocalInstallation"] = false;
+        }
         if (!("Version" in $$source)) {
             this["Version"] = "";
         }

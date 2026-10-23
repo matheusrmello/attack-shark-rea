@@ -218,7 +218,7 @@ it.each([true, false])("refreshes captured reset settings only after success=%s"
   expect(screen.getByRole("combobox", { name: "Lighting effect" })).toHaveTextContent(success ? "Static DPI" : "Fixed");
   expect(screen.getByRole("slider", { name: "Key response time" })).toHaveValue(success ? "4" : "8");
   expect(screen.getByRole("slider", { name: "Normal sleep duration" })).toHaveValue(success ? "0.5" : "10");
-  expect(screen.getByRole("slider", { name: success ? "Stage 2 DPI" : "Stage 4 DPI" })).toBeInTheDocument();
+  expect(screen.getByRole("slider", { name: "Stage 2 DPI" })).toBeInTheDocument();
   expect(service.ResetToFactory).toHaveBeenCalledOnce();
   [service.StageDPI, service.ApplyDPI, service.StagePollingRate, service.ApplyPollingRate, service.StageDebounce, service.ApplyDebounce, service.StageNormalSleep, service.ApplyNormalSleep, service.StageLighting, service.ApplyLighting, service.StageRemap, service.ApplyRemap].forEach((request) => expect(request).not.toHaveBeenCalled());
   if (!success) expect(screen.queryByText("Factory reset completed.")).not.toBeInTheDocument();
@@ -456,15 +456,13 @@ describe("App", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("selection required");
   });
 
-  it("requests live status on mount instead of trusting a hardware-free cached snapshot", async () => {
-    const service = serviceFor(snapshot({ Connection: "", Battery: null }), {
-      RefreshStatus: vi.fn().mockResolvedValue(snapshot({ Connection: "dongle", Battery: 84 })),
-    });
+  it("uses the cached status on mount and waits for passive status events", async () => {
+    const service = serviceFor(snapshot({ Connection: "", Battery: null }));
     render(<App service={service} />);
 
     expect(await screen.findByText("Device available")).toBeInTheDocument();
-    expect(screen.getByText("Battery 84%")).toBeInTheDocument();
-    expect(service.RefreshStatus).toHaveBeenCalled();
+    expect(screen.getByText("Battery unavailable")).toBeInTheDocument();
+    expect(service.RefreshStatus).not.toHaveBeenCalled();
   });
 
   it("shows an unavailable battery when the generated binding supplies null", async () => {
@@ -1212,6 +1210,29 @@ it.each([
 const unifiedInfo = (overrides: Partial<import("./desktop-contract").UnifiedUpdateInfo> = {}) => ({
   Version: "2.0.0", AppAvailable: true, AppInstalled: false, AppError: "",
   PolicyState: "outdated", PolicyInstalled: false, PolicyError: "", RelaunchError: "", ...overrides,
+});
+
+it.each([
+  ["current", "USB permissions are current."],
+  ["missing", "USB permissions are missing."],
+  ["outdated", "USB permissions need a manual update."],
+  ["custom", "Custom USB permissions preserved; no automatic overwrite."],
+  ["error", "USB permissions could not be inspected."],
+])("shows local installation %s status in Device without AppImage update controls", async (PolicyState, message) => {
+  const service = serviceFor(snapshot(), {
+    CheckUnifiedUpdates: vi.fn().mockResolvedValue(unifiedInfo({ LocalInstallation: true, AppAvailable: false, PolicyState })),
+    ApplyUnifiedUpdate: vi.fn(),
+  });
+  render(<App service={service} />);
+  expect(await screen.findByText("This local installation is updated manually.")).toBeInTheDocument();
+  expect(document.querySelector(".update-window")).toBeNull();
+  const device = screen.getByRole("region", { name: "Device" });
+  expect(within(device).getByText(message)).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Apply updates" })).not.toBeInTheDocument();
+  expect(screen.queryByText("No newer AppImage available.")).not.toBeInTheDocument();
+  fireEvent.click(within(device).getByRole("button", { name: "Recheck USB permissions" }));
+  await waitFor(() => expect(service.CheckUnifiedUpdates).toHaveBeenCalledTimes(2));
+  expect(service.ApplyUnifiedUpdate).not.toHaveBeenCalled();
 });
 
 it("applies directly in one update window without navigating and retains progress and partial outcomes", async () => {

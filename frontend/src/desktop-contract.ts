@@ -22,7 +22,7 @@ export type MacroDraft = { ID: string; Name: string; Button: number; Repeat: num
 export type RemapSnapshot = { MacroPending?: MacroDraft | null; MacroApplied?: MacroDraft | null; MacroDrafts?: Record<number, MacroDraft>; MacroAppliedDrafts?: Record<number, MacroDraft>; MacroProgress?: MacroProgress; Pending: RemapConfig; Applied: RemapConfig; Factory: RemapConfig; Actions: RemapAction[]; Revision: number; Firmware: string; Persistence: string; RetryAvailable: boolean; Error: { Code: string } };
 export type UpdateInfo = { Version: string };
 // Display-only backend outcomes; no renderer-selected privileged inputs.
-export type UnifiedUpdateInfo = { Version: string; AppAvailable: boolean; AppInstalled: boolean; AppError: string; PolicyState: string; PolicyInstalled: boolean; PolicyError: string; RelaunchError: string };
+export type UnifiedUpdateInfo = { LocalInstallation?: boolean; Version: string; AppAvailable: boolean; AppInstalled: boolean; AppError: string; PolicyState: string; PolicyInstalled: boolean; PolicyError: string; RelaunchError: string };
 export type ResetLaneResult = { Lane: string; State: string; Code: string };
 export type ResetResult = { Lanes: ResetLaneResult[]; Cleanup: ResetLaneResult; Error: { Code: string }; RetryAvailable: boolean };
 export type DeviceID = { VendorID: number; ProductID: number; Serial: string };

@@ -20,6 +20,10 @@ Go + [Wails v3](https://wails.io) (backend) and React + Vite (frontend).
 - **Multi-device inventory** over kernel-backed hidraw, with selection by serial.
 - **Live status monitoring** — battery heartbeats and physical DPI button
   changes are pushed to the UI as they arrive from the dongle.
+- **System tray battery status** — the tray label and menu show the latest
+  reported charge; a desktop notification appears once when charge reaches
+  10% or lower, and rearms after the battery rises above 10%. Closing the
+  window hides it to the tray; choose **Quit** in the tray menu to exit.
 - **DPI configuration** — up to 8 stages, 50–26000 in 50-unit steps, with
   per-stage colors and an active-stage circle UI.
 - **Apply on demand** — writes the 56-byte configuration report over hidraw
@@ -168,6 +172,13 @@ task --dir cmd/x6configurator build
 # Or build the Go packages manually:
 go build ./...
 ```
+
+Local source builds report installation and USB policy status under **Device →
+Installation**. They inspect the installed rule against the packaged policy and
+provide a read-only recheck. Automatic AppImage replacement requires a managed
+signed release installation; source builds do not offer that action or the
+floating update window. Managed release installations retain the signed update
+flow described above.
 
 ## Testing
 

@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Window } from "@wailsio/runtime";
 
 export function TopBar({
   title = "Mouse configuration",
@@ -13,20 +12,13 @@ export function TopBar({
   return (
     <header className="titlebar top-bar">
       <div className="appname brand">
-        <span className="app-icon" aria-hidden="true">✦</span>
-        {title}
-        {subtitle && <small>{subtitle}</small>}
+        <img className="app-icon" src="/attack-shark-x6.png" alt="" />
+        <span className="brand-wordmark">ATTACK SHARK</span>
+        <small>{subtitle || "X6"}</small>
+        <span className="sr-only">{title}</span>
       </div>
       <div className="top-bar-actions">
         <div className="top-bar-children">{children}</div>
-        <div className="window-controls" aria-label="Window controls">
-          <button type="button" className="window-control" aria-label="Minimise window" onClick={() => { void Window.Minimise(); }}>
-            <span aria-hidden="true">−</span>
-          </button>
-          <button type="button" className="window-control" aria-label="Close window" onClick={() => { void Window.Close(); }}>
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
       </div>
     </header>
   );

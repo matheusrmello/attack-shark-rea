@@ -18,6 +18,16 @@ export function UnifiedUpdates({ info, checking, applying, error, onCheck, onApp
   info?: UnifiedUpdateInfo; checking: boolean; applying: boolean; error: string;
   onCheck(): void; onApply(): void;
 }) {
+  if (info?.LocalInstallation) return <article className="card unified-updates" aria-labelledby="installation-title">
+    <h2 id="installation-title">Installation</h2>
+    <p>This local installation is updated manually.</p>
+    <h3>USB permissions</h3>
+    <p>{info.PolicyState === "outdated" ? "USB permissions need a manual update." : policyMessages[info.PolicyState] ?? "USB permissions status is unknown."}</p>
+    {info.PolicyError && <p role="alert">USB permissions: {info.PolicyError}</p>}
+    {error && <p role="alert">USB permissions check failed: {error}</p>}
+    {checking && <p role="status">Checking USB permissions…</p>}
+    <button type="button" className="button" disabled={checking} onClick={onCheck}>Recheck USB permissions</button>
+  </article>;
   return <article className="card unified-updates" aria-labelledby="updates-title">
     <h2 id="updates-title" tabIndex={-1}>Updates</h2>
     <p>AppImage and USB permissions</p>

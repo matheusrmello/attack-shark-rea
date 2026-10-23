@@ -492,7 +492,8 @@ describe("useDesktopWorkspace", () => {
     const { result, unmount } = renderHook(() => useDesktopWorkspace(harness.service));
 
     await waitFor(() => expect(result.current.model.snapshot?.Battery).toBe(84));
-    expect(harness.service.RefreshStatus).toHaveBeenCalledTimes(2);
+    expect(harness.service.GetSnapshot).toHaveBeenCalledTimes(2);
+    expect(harness.service.RefreshStatus).not.toHaveBeenCalled();
     expect(harness.service.GetPollingSnapshot).toHaveBeenCalledTimes(2);
     expect(harness.service.GetLightingSnapshot).toHaveBeenCalledTimes(2);
     expect(harness.service.RefreshInventory).toHaveBeenCalledOnce();

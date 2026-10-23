@@ -210,7 +210,7 @@ export function App({ service }: { service: DesktopService }) {
       connectionStatus={connectionStatusElement}
     >
       {macroWorkspace}
-      {unifiedUpdates
+      {unifiedUpdates && !model.unifiedUpdate?.LocalInstallation
         ? <section className="update-window" aria-label="Updates">
             <UnifiedUpdates info={model.unifiedUpdate} checking={!!model.updateChecking}
               applying={updateApplying} error={updateError} onCheck={() => actions.checkUpdates?.()} onApply={actions.applyUpdate} />
@@ -431,6 +431,9 @@ export function App({ service }: { service: DesktopService }) {
         title="Device"
       >
         <div className="stack">
+          {model.unifiedUpdate?.LocalInstallation && <UnifiedUpdates info={model.unifiedUpdate}
+            checking={!!model.updateChecking} applying={updateApplying} error={updateError}
+            onCheck={() => actions.checkUpdates?.()} onApply={actions.applyUpdate} />}
           <DeviceStatusPanel
             applicationVersion={applicationVersion}
             connectionType={snapshot.Connection}

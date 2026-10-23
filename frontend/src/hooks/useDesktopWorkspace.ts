@@ -126,7 +126,10 @@ export function useDesktopWorkspace(service: DesktopService): { model: Workspace
   };
 
   const refreshSelectedDeviceSnapshots = (assignment = false) => {
-    void service.RefreshStatus().then(setSnapshot);
+    // Status arrives asynchronously through the always-on HID listener. A
+    // second interrupt read here competes with that listener for the same
+    // hidraw stream and can turn an ordinary idle period into a timeout.
+    void service.GetSnapshot().then(setSnapshot);
     void service.GetPollingSnapshot().then(setPolling);
     void service.GetDebounceSnapshot().then(setDebounce);
     void service.GetLightingSnapshot().then(setLighting);

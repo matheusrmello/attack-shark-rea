@@ -55,10 +55,11 @@ describe("WorkspaceShell", () => {
     expect(screen.getByRole("button", { name: "Primary control" })).toBeInTheDocument();
   });
 
-  it("renders the GNOME titlebar and connection card without utility tools rails", () => {
+  it("renders the Attack Shark titlebar and connection card without utility tools rails", () => {
     render(<WorkspaceShell><WorkspaceView id="performance" title="Performance"><button>Primary control</button></WorkspaceView></WorkspaceShell>);
 
-    expect(screen.getByText("✦")).toBeInTheDocument();
+    expect(document.querySelector(".app-icon")).toHaveAttribute("src", "/attack-shark-x6.png");
+    expect(screen.getByText("ATTACK SHARK")).toBeInTheDocument();
     expect(screen.getByText("Mouse configuration")).toBeInTheDocument();
     expect(screen.getByText("Device available")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Toggle utility rail/i })).not.toBeInTheDocument();

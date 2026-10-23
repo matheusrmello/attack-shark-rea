@@ -1,18 +1,18 @@
 :root {
   color-scheme: dark;
 
-  /* GNOME / libadwaita / Mission Center design tokens */
-  --accent: #1d9e75;
-  --bg: #1e1e1c;
-  --rail: #292a27;
-  --surface: #30312e;
-  --raised: #393a36;
-  --line: #4a4b46;
-  --text: #f2f1ed;
-  --muted: #b6b7b1;
-  --dim: #8b8c86;
-  --ok: #55c590;
-  --danger: #e05f65;
+  /* Attack Shark X6 identity: charcoal surfaces, orange controls, green status. */
+  --accent: #ff7817;
+  --bg: #0e1014;
+  --rail: #15181e;
+  --surface: #171b22;
+  --raised: #191e26;
+  --line: #282e38;
+  --text: #e8ebf1;
+  --muted: #a3acbb;
+  --dim: #778293;
+  --ok: #62d69b;
+  --danger: #ef6670;
   --shadow: 0 12px 36px #0005;
 
   /* Aliases and semantic tokens */
@@ -22,18 +22,18 @@
   --text-primary: var(--text);
   --text-secondary: var(--muted);
   --accent-primary: var(--accent);
-  --accent-subtle: #244b3e;
-  --accent-on-primary: #09261d;
+  --accent-subtle: #302116;
+  --accent-on-primary: #251305;
   --status-success: var(--ok);
   --status-danger: var(--danger);
   --border-subtle: var(--line);
-  --border-strong: #55564f;
-  --focus-ring: #77dabe;
+  --border-strong: #3a424f;
+  --focus-ring: #ff9b52;
 
   /* Radii & spacing */
   --radius-sm: 6px;
-  --radius-md: 9px;
-  --radius-lg: 13px;
+  --radius-md: 10px;
+  --radius-lg: 15px;
   --radius-window: 18px;
   --space-1: 4px;
   --space-2: 8px;

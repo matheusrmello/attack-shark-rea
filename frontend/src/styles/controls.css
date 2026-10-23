@@ -30,7 +30,7 @@
   padding: 17px 18px;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  background: var(--raised);
+  background: var(--surface);
 }
 
 .card h2, .card h3, .panel-title {
@@ -38,6 +38,8 @@
   font-size: 15px;
   font-weight: 600;
   color: var(--text);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .hint, .panel-subtitle, .polling-guidance {
@@ -76,7 +78,7 @@
   padding: 8px 4px;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
-  background: #2d2e2b;
+  background: #202630;
   color: var(--muted);
   text-align: center;
   font-size: 12px;
@@ -92,8 +94,8 @@
 
 .stage.selected, .stage.active, .stage-dot.active {
   border-color: var(--accent);
-  background: #244b3e;
-  color: #c0f0dc;
+  background: var(--accent-subtle);
+  color: #ffad72;
 }
 
 .stage:disabled {
@@ -136,7 +138,7 @@
   padding: 8px 4px;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
-  background: #2d2e2b;
+  background: #202630;
   color: var(--muted);
   text-align: center;
   font-size: 12px;
@@ -144,14 +146,14 @@
 }
 
 .segmented button:hover:not(:disabled), .polling-option:hover:not(:disabled) {
-  background: #363733;
+  background: #2b323e;
   color: var(--text);
 }
 
 .segmented button.selected, .segmented button[aria-checked="true"], .polling-option:has(input:checked) {
   border-color: var(--accent);
-  background: #244b3e;
-  color: #c0f0dc;
+  background: var(--accent-subtle);
+  color: #ffad72;
 }
 
 .segmented button:disabled, .polling-option:has(input:disabled) {
@@ -164,7 +166,7 @@
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: #2b2c29;
+  background: #151a21;
 }
 
 .group + .group {
@@ -218,7 +220,7 @@
   height: 22px;
   margin: 0;
   border-radius: 20px;
-  background: #676862;
+  background: #485363;
   position: relative;
   transition: 0.18s;
   cursor: pointer;
@@ -255,16 +257,16 @@
   max-width: 100%;
   min-height: 2.4rem;
   padding: 7px 10px;
-  border: 1px solid #565751;
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
-  background: #292a27;
+  background: #11151b;
   color: var(--text);
   font-size: 13px;
 }
 
 select option {
-  background-color: #292a27 !important;
-  color: #f2f1ed !important;
+  background-color: #11151b !important;
+  color: var(--text) !important;
 }
 
 .select:disabled, select:disabled {
@@ -305,8 +307,8 @@ select option {
   width: max-content;
   max-width: min(220px, calc(100vw - 16px));
   max-height: min(220px, calc(100vh - 16px));
-  background: #393a36 !important;
-  border: 1px solid #565751;
+  background: #1b2029 !important;
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
   /* Menus must remain usable above persistent operation feedback. */
@@ -351,7 +353,7 @@ select option {
 
 .gnome-select-option:hover,
 .gnome-select-option.active {
-  background: #454640;
+  background: #2b323e;
 }
 
 .gnome-select-submenu-arrow {
@@ -380,9 +382,9 @@ select option {
 
 .button, .apply-lighting-btn, .reset-btn {
   padding: 8px 13px;
-  border: 1px solid #62635d;
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
-  background: #474843;
+  background: #222832;
   font-weight: 500;
   font-size: 13px;
   color: var(--text);
@@ -390,19 +392,19 @@ select option {
 }
 
 .button:hover:not(:disabled), .reset-btn:hover:not(:disabled) {
-  background: #52534d;
-  border-color: #72736c;
+  background: #2b323e;
+  border-color: #4a5565;
 }
 
 .button.primary, .apply-lighting-btn {
   border-color: var(--accent);
   background: var(--accent);
-  color: #09261d;
+  color: var(--accent-on-primary);
 }
 
 .button.primary:hover:not(:disabled), .apply-lighting-btn:hover:not(:disabled) {
-  background: #23ba8b;
-  border-color: #23ba8b;
+  background: #ff9344;
+  border-color: #ff9344;
 }
 
 .button:disabled, .reset-btn:disabled, .apply-lighting-btn:disabled {
@@ -464,9 +466,9 @@ select option {
   width: 100%;
   min-height: 2.4rem;
   padding: 7px 10px;
-  border: 1px solid #565751;
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
-  background: #292a27;
+  background: #11151b;
   color: var(--text);
   text-align: left;
   cursor: pointer;
@@ -487,9 +489,9 @@ select option {
   max-height: 16rem;
   overflow: auto;
   padding: 4px;
-  border: 1px solid #55564f;
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
-  background-color: #393a36;
+  background-color: #1b2029;
   color: var(--text);
   box-shadow: 0 8px 24px #0008;
 }
@@ -505,8 +507,8 @@ select option {
 }
 
 .lighting-effect-option.is-active, .lighting-effect-option:hover {
-  background-color: #244b3e;
-  color: #c0f0dc;
+  background-color: var(--accent-subtle);
+  color: #ffad72;
 }
 
 /* Lighting Colors & Swatches */
@@ -529,9 +531,9 @@ select option {
   justify-content: center;
   width: 38px;
   height: 38px;
-  border: 1px solid #565751;
+  border: 1px solid var(--border-strong);
   border-radius: 50%;
-  background: #292a27;
+  background: #11151b;
   cursor: pointer;
   position: relative;
 }

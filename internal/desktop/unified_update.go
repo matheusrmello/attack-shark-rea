@@ -27,22 +27,32 @@ type PolicyUpdateBackend interface {
 
 // UnifiedUpdateInfo contains display values only, not privileged inputs.
 type UnifiedUpdateInfo struct {
-	Version         string
-	AppAvailable    bool
-	AppInstalled    bool
-	AppError        string
-	PolicyState     string
-	PolicyInstalled bool
-	PolicyError     string
-	RelaunchError   string
+	LocalInstallation bool
+	Version           string
+	AppAvailable      bool
+	AppInstalled      bool
+	AppError          string
+	PolicyState       string
+	PolicyInstalled   bool
+	PolicyError       string
+	RelaunchError     string
 }
 
 type unifiedUpdateState struct {
-	backend   PolicyUpdateBackend
-	source    udevpolicy.Source
-	candidate *udevauth.Policy
-	checked   bool
-	info      UnifiedUpdateInfo
+	localInstallation bool
+	backend           PolicyUpdateBackend
+	source            udevpolicy.Source
+	candidate         *udevauth.Policy
+	checked           bool
+	info              UnifiedUpdateInfo
+}
+
+// ConfigureLocalInstallationUpdates exposes read-only policy inspection for
+// installations without the managed AppImage updater. It grants no apply path.
+func ConfigureLocalInstallationUpdates(s *Service, source udevpolicy.Source) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.update = &updateState{unified: &unifiedUpdateState{localInstallation: true, source: source}}
 }
 
 // ConfigureUnifiedUpdates must run after ConfigureUpdater and before registration.
@@ -118,6 +128,14 @@ func (s *Service) CheckUnifiedUpdates(ctx context.Context) (*UnifiedUpdateInfo, 
 	if err := bounded.Err(); err != nil {
 		return nil, err
 	}
+	if u.localInstallation {
+		result := udevpolicy.Inspect(u.source)
+		info := UnifiedUpdateInfo{LocalInstallation: true, PolicyState: string(result.State)}
+		if result.Err != nil {
+			info.PolicyError = result.Err.Error()
+		}
+		return &info, nil
+	}
 	previous := u.candidate
 	var policy *udevauth.Policy
 	info := UnifiedUpdateInfo{AppInstalled: state.replacementComplete}
@@ -191,6 +209,9 @@ func (s *Service) ApplyUnifiedUpdate(ctx context.Context) (*UnifiedUpdateInfo, e
 	state.mu.Lock()
 	defer state.mu.Unlock()
 	u := state.unified
+	if u != nil && u.localInstallation {
+		return nil, errors.New("automatic updates are unavailable for local installations")
+	}
 	if u == nil || !u.checked {
 		return nil, errors.New("check for updates before applying")
 	}
