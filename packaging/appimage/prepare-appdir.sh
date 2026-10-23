@@ -10,9 +10,17 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+# linuxdeploy uses this Debian-style path. On Arch-derived hosts, WebKitGTK 6
+# helpers are emitted directly below usr/lib instead.
+webkit_dir="$APPDIR_TARGET/usr/lib/x86_64-linux-gnu/webkitgtk-6.0"
+if [ ! -d "$webkit_dir" ] && [ -d "$APPDIR_TARGET/usr/lib/webkitgtk-6.0" ]; then
+    mkdir -p "$(dirname "$webkit_dir")"
+    ln -s ../webkitgtk-6.0 "$webkit_dir"
+fi
+
 # Ensure bundled WebKitGTK helper processes have executable permissions
 for helper in WebKitNetworkProcess WebKitWebProcess; do
-    helper_path="$APPDIR_TARGET/usr/lib/x86_64-linux-gnu/webkitgtk-6.0/$helper"
+    helper_path="$webkit_dir/$helper"
     if [ -f "$helper_path" ]; then
         chmod 0755 "$helper_path"
     fi

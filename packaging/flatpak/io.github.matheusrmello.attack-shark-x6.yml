@@ -1,0 +1,33 @@
+app-id: io.github.matheusrmello.attack-shark-x6
+runtime: org.gnome.Platform
+runtime-version: '50'
+sdk: org.gnome.Sdk
+command: attack-shark-linux
+
+finish-args:
+  - --device=all
+  - --share=ipc
+  - --share=network
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.freedesktop.portal.*
+  - --talk-name=org.kde.StatusNotifierWatcher
+
+modules:
+  - name: attack-shark-x6
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 attack-shark-linux /app/bin/attack-shark-linux
+      - install -Dm644 io.github.matheusrmello.attack-shark-x6.desktop /app/share/applications/io.github.matheusrmello.attack-shark-x6.desktop
+      - install -Dm644 attack-shark-x6.png /app/share/icons/hicolor/512x512/apps/io.github.matheusrmello.attack-shark-x6.png
+      - install -Dm644 io.github.matheusrmello.attack-shark-x6.metainfo.xml /app/share/metainfo/io.github.matheusrmello.attack-shark-x6.metainfo.xml
+    sources:
+      - type: file
+        path: ../../cmd/x6configurator/build/attack-shark-linux
+      - type: file
+        path: io.github.matheusrmello.attack-shark-x6.desktop
+      - type: file
+        path: attack-shark-x6.png
+      - type: file
+        path: io.github.matheusrmello.attack-shark-x6.metainfo.xml

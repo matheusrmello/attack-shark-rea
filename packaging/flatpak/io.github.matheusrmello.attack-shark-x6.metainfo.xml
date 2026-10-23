@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.matheusrmello.attack-shark-x6</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Attack Shark X6 Configurator</name>
+  <summary>Configure the Attack Shark X6 gaming mouse on Linux</summary>
+  <description>
+    <p>Configure DPI stages, polling rate, lighting, buttons, macros, and power settings for the Attack Shark X6.</p>
+  </description>
+  <launchable type="desktop-id">io.github.matheusrmello.attack-shark-x6.desktop</launchable>
+  <developer id="io.github.matheusrmello">
+    <name>Matheus Mello</name>
+  </developer>
+  <content_rating type="oars-1.1"/>
+</component>

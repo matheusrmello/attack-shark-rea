@@ -107,6 +107,7 @@ it("retains snapshots and reports a rejected reset without fresh reads", async (
   await waitFor(() => expect(service.GetRemapSnapshot).toHaveBeenCalledTimes(2));
   const previous = result.current.model.remap;
   service.GetRemapSnapshot.mockClear();
+  service.GetSnapshot.mockClear();
   act(() => result.current.actions.confirmReset());
   await waitFor(() => expect(result.current.model.notice).toBe("Factory reset failed: transport unavailable."));
   expect(service.GetRemapSnapshot).not.toHaveBeenCalled();
@@ -124,6 +125,7 @@ it("ignores a reset completion after device selection invalidates its scope", as
   act(() => result.current.actions.confirmReset());
   act(() => result.current.actions.selectDevice("beta"));
   await waitFor(() => expect(result.current.model.remap).toEqual({ Revision: 3 }));
+  service.GetSnapshot.mockClear();
   await act(async () => reset.resolve({ Cleanup: { State: "success" }, Error: { Code: "" } }));
   expect(service.GetSnapshot).not.toHaveBeenCalled();
   expect(result.current.model.notice).not.toBe("Factory reset completed.");

@@ -43,6 +43,12 @@ jobs:
           go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-beta.28
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
+      - name: Install Flatpak runtime and SDK
+        run: |
+          sudo apt-get install -y --no-install-recommends flatpak
+          sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          sudo flatpak install --system --noninteractive --assumeyes flathub org.gnome.Platform//50 org.gnome.Sdk//50
+
       - name: Install Task
         run: |
           go install github.com/go-task/task/v3/cmd/task@v3.45.4
@@ -94,6 +100,8 @@ jobs:
           sed "s|__ATTACK_SHARK_RELEASE_PUBLIC_KEY__|$release_public_key|" ../../install.sh > build/release/install.sh
           chmod 0755 build/release/install.sh
           task package:container:release
+          ../../packaging/flatpak/build-flatpak.sh build/attack-shark-linux build/release/attack-shark-linux-x86_64.flatpak beta
+          sha256sum build/release/attack-shark-linux-x86_64.flatpak > build/release/attack-shark-linux-x86_64.flatpak.sha256
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v7
@@ -221,4 +229,6 @@ jobs:
             packaging/udev/60-attack-shark-x6-hidraw.rules \
             cmd/x6configurator/build/release/attack-shark-linux-udev-helper \
             cmd/x6configurator/build/release/udev-helper-manifest.txt \
-            cmd/x6configurator/build/release/udev-policy.txt
+            cmd/x6configurator/build/release/udev-policy.txt \
+            cmd/x6configurator/build/release/attack-shark-linux-x86_64.flatpak \
+            cmd/x6configurator/build/release/attack-shark-linux-x86_64.flatpak.sha256

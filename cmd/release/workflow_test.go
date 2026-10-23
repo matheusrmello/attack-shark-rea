@@ -76,6 +76,8 @@ func TestReleaseWorkflowEnforcesCanonicalReleasePolicy(t *testing.T) {
 		"cmd/x6configurator/build/release/attack-shark-linux-udev-helper",
 		"cmd/x6configurator/build/release/udev-helper-manifest.txt",
 		"cmd/x6configurator/build/release/udev-policy.txt",
+		"cmd/x6configurator/build/release/attack-shark-linux-x86_64.flatpak",
+		"cmd/x6configurator/build/release/attack-shark-linux-x86_64.flatpak.sha256",
 	}
 	assets := releaseAssetArguments(release)
 	if !hasExactReleaseAssets(assets, expectedAssets) {
